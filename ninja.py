@@ -6,39 +6,28 @@ import copy
 
 ninja_root_dir = os.path.abspath(os.path.dirname(__file__))
 
-def internal_add_ninja(envs = None):
-
+def get_ninja():
+    ninja = None
     plat = platform.machine().lower()
     is_x64 = plat.startswith("amd") or plat.startswith("x86") or plat.startswith("x64")
 
-    if envs is None:
-        envs = copy.deepcopy(os.environ)
-
     if sys.platform.lower().startswith("win"):
         if is_x64:
-            envs["PATH"] = f"{ninja_root_dir}/win/;{envs["PATH"]}"
+            ninja = f"{ninja_root_dir}/win/"
         else:
-            envs["PATH"] = f"{ninja_root_dir}/win-arm64/;{envs["PATH"]}"
+            ninja = f"{ninja_root_dir}/win-arm64/"
     elif sys.platform.lower().startswith("linux"):
         if is_x64:
-            envs["PATH"] = f"{ninja_root_dir}/linux/:{envs["PATH"]}"
+            ninja = f"{ninja_root_dir}/linux/"
         else:
-            envs["PATH"] = f"{ninja_root_dir}/linux-aarch64/:{envs["PATH"]}"
+            ninja = f"{ninja_root_dir}/linux-aarch64/"
     elif sys.platform.lower().startswith("darwin"):
         if is_x64:
             return None
         else:
-            envs["PATH"] = f"{ninja_root_dir}/mac/:{envs["PATH"]}"
+            ninja = f"{ninja_root_dir}/mac/"
     else:
         return None
     
-    return envs
+    return ninja
 
-def add_ninja(envs = None):
-    result = internal_add_ninja(envs)
-
-    if result is not None:
-        print(f"add ninja to PATH:{result}")
-    else:
-        print("failed to apply ninja")
-        raise RuntimeError("failed to apply ninja")
